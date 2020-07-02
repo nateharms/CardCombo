@@ -1,0 +1,11 @@
+pandas
+bokeh
+dill
+flask
+jinja2
+pip
+matplotlib
+simplejson
+alpha_vantage
+requests==2.20.0
+gunicorn==19.9.0
