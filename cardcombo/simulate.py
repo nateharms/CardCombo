@@ -1,68 +1,8 @@
 import os, pickle, re
 import numpy as np
 import pandas as pd
+from multiprocessing import Pool
 
-
-def compare_date(date):
-    """
-    A function to find if a date is within a year from now
-    
-    Inputs:
-    - date (str), a date in the mm/dd/yyyy format
-    
-    Returns:
-    - bool (str), a bool indicating if the date is 
-        within a year from now or not
-    """
-    other = '4/3/2020'
-    m,d,y = date.split('/')
-    om,od,oy = other.split('/')
-    m = int(m)
-    d = int(d)
-    y = int(y)
-    om = int(om)
-    od = int(od)
-    oy = int(oy)
-    if oy <= y+1:
-        if om < m:
-            return True
-        elif om == m:
-            if od < d:
-                return True
-            else:
-                return False
-        else: 
-            return False
-    else:
-        return False
-# Removing all positive transactions
-transactions = transactions[transactions['Transaction Type'] == 'debit']
-
-# Finding all transactions within a year of now
-transactions = transactions[transactions['Date'].map(compare_date)]
-
-# Parsing out annual expenses for each specific category
-food = transactions[transactions.Category.map(lambda x: x.lower() in ['food & dinging', 'alcohol & bars', 'restaurants', 'fast food'])].Amount.sum()
-flights = transactions[transactions.Category.map(lambda x: x.lower() in ['air travel'])].Amount.sum()
-hotel = transactions[transactions.Category.map(lambda x: x.lower() in ['hotel'])].Amount.sum()
-gas = transactions[transactions.Category.map(lambda x: x.lower() in ['auto & transport', 'gas & fuel'])].Amount.sum()
-grocery = transactions[transactions.Category.map(lambda x: x.lower() in ['groceries'])].Amount.sum()
-utilities = transactions[transactions.Category.map(lambda x: x.lower() in ['bills & utilities', 'mobile phone', 'internet'])].Amount.sum()
-other = transactions.Amount.sum() - food -  flights - hotel - gas - grocery
-
-# Making a dict containing all of the expenses, to be used later
-expenses = {
-    'flights': flights,
-    'hotel':hotel,
-    'grocery':grocery,
-    'gas':gas,
-    'utilities':utilities,
-    'restaurants': food,
-    'other':other
-    
-}
-
-expenses
 
 
 def calculate_rewards(rewards_df, expenses):
@@ -91,3 +31,50 @@ def calculate_rewards(rewards_df, expenses):
             continue
         
     return cash_rewards
+
+def simulate(rewards_df, expenses, num_of_cards):
+
+    to_plot = rewards_df[rewards_df.columns[:-3]]
+
+    # Only looking at credit card with greater than 1% back at everything
+    to_plot = to_plot[to_plot.sum(axis=1) > len(to_plot.columns)]
+
+    # Removing cards that have a weirdly high point value
+    # These data are either parsed incorrectly or are hotel rewards were
+    # the point to cent ratio is high (e.g. many points to a cent)
+    to_plot = to_plot[to_plot.sum(axis=1) <= 2*len(to_plot.columns)] 
+
+    card_rewards = []
+    cloud_list = []
+
+    for i in range(1000):
+        choice = np.random.choice(to_plot.index, num_of_cards)
+        card_rewards.append(calculate_rewards(to_plot.loc[choice], expenses))
+        cloud_list.append((calculate_rewards(to_plot.loc[choice], expenses), choice))
+    return card_rewards, cloud_list
+
+def simulate_all(rewards_df, expenses, range_of_cards=10):
+    calculated_rewards = {}
+    word_cloud = {}
+    for num_of_cards in range(range_of_cards+1):
+        card_rewards, cloud_list = simulate(rewards_df, expenses, num_of_cards)
+        calculated_rewards[num_of_cards] = card_rewards
+        word_cloud[num_of_cards] = cloud_list
+    return calculated_rewards, word_cloud
+
+
+if __name__ == '__main__':
+    example_expenses = {'flights': 895.4899999999999,
+        'hotel': 9.9,
+        'grocery': 1803.92,
+        'gas': 336.03999999999996,
+        'utilities': 0.0,
+        'restaurants': 4069.8500000000004,
+        'other': 44067.240000000005}
+    rewards_df= pickle.load(open('rewards.pkl', 'rb'))
+    calculated_rewards, word_cloud = simulate_all(rewards_df, example_expenses)
+
+    f = open('calculated_rewards.pkl', 'wb')
+    pickle.dump(calculated_rewards, f)
+    f = open('cloud.pkl', 'wb')
+    pickle.dump(word_cloud, f)   
