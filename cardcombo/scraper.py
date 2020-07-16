@@ -138,8 +138,6 @@ def get_rewards_info_from_url(url):
         annual_bonus, and net_fee
     """
     
-    print()
-    print()
     res = requests.get(url)
     html_page = res.content
     soup = BeautifulSoup(html_page, 'html.parser')
@@ -200,3 +198,48 @@ def get_rewards_info_from_url(url):
         rewards['annual_bonus'] = 0
         rewards['net_fee'] = 0
     return title, rewards
+
+
+if __name__ == '__main__':
+    parent_url = 'https://www.cardratings.com/credit-card-list.html'
+    res = requests.get(parent_url)
+    html_page = res.content
+    soup = BeautifulSoup(html_page, 'html.parser')
+    cc_urls = []
+    for link in soup.find_all('a', href=True):
+        if 'cardratings.com/credit-card/' in link.get('href'):
+            print(link.get('href'))
+    total_rewards = {}
+    for cc_url in cc_urls:
+        if cc_url == "https://www.cardratings.com/credit-card/connect-classic":
+            continue # known to be broken url
+        title, rewards = get_rewards_info_from_url(cc_url)
+        if title: # cleaning up the title
+            title_string = ''
+            review = False
+            for t in title.split():
+                if '-' in t.lower() or 'review' in t.lower():
+                    break
+                title_string += t + ' '
+            total_rewards[title_string.strip()] = rewards
+
+    # Making and saving the dataframe
+    rewards_df = pd.DataFrame(total_rewards).T
+    f = open('rewards.pkl', 'wb')
+    pickle.dump(rewards_df, f)
+
+    # Currently don't trust the annual fee and bonus section, 
+    # so we're going to process based on the rewards alone
+
+    # TODO: Find accurate net_fee for all cards and use that when 
+    # calculating rewards
+    to_plot = rewards_df[rewards_df.columns[:-3]]
+
+    # Only looking at credit card with greater than 1% back at everything
+    to_plot = to_plot[to_plot.sum(axis=1) > len(to_plot.columns)]
+
+    # Removing cards that have a weirdly high point value
+    # These data are either parsed incorrectly or are hotel rewards were
+    # the point to cent ratio is high (e.g. many points to a cent)
+    to_plot = to_plot[to_plot.sum(axis=1) <= 2*len(to_plot.columns)] 
+    to_plot
