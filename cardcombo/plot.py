@@ -8,6 +8,18 @@ sns.set()
 sns.set_style('whitegrid')
 sns.set_context('talk')
 
+import pickle, os
+from collections import Counter
+import matplotlib.pyplot as plt
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from PIL import Image
+from wordcloud import WordCloud
+sns.set()
+sns.set_style('whitegrid')
+sns.set_context('talk')
+
 
 def read_rewards():
     # To be replaced with a formal database
@@ -15,58 +27,87 @@ def read_rewards():
     calculated_rewards = pickle.load(f)
     return calculated_rewards
 
+def plot_num_cards(calculated_rewards):
+    mins = []
+    medians = []
+    maxes = []
+    for card_number, rewards in calculated_rewards.items():
+        # For `card_number` number of credit cards ...
+        mins.append(np.min(rewards)) # ... the min rewards 
+        maxes.append(np.max(rewards)) # ... the max rewards
+        medians.append(np.median(rewards)) # ... the median rewards
 
-mins = []
-medians = []
-maxes = []
-for card_number, rewards in calculated_rewards.items():
-    # For `card_number` number of credit cards ...
-    mins.append(np.min(rewards)) # ... the min rewards 
-    maxes.append(np.max(rewards)) # ... the max rewards
-    medians.append(np.median(rewards)) # ... the median rewards
+    fig, ax = plt.subplots(figsize=(12,8))
 
-fig, ax = plt.subplots(figsize=(12,8))
+    ax.scatter(calculated_rewards.keys(), medians, label='Median')
 
-ax.scatter(calculated_rewards.keys(), medians, label='Median')
+    smooth_median = max(medians)
+    smooth_number_of_cards = np.linspace(min(calculated_rewards.keys()), max(calculated_rewards.keys()), 500)  
 
-smooth_median = max(medians)
-smooth_number_of_cards = np.linspace(min(calculated_rewards.keys()), max(calculated_rewards.keys()), 500)  
+    # Smoothing the curve for min rewards 
+    power_smooth = interp1d(list(calculated_rewards.keys()), mins, kind='cubic')
+    smooth_min = max(power_smooth(smooth_number_of_cards)) # the limit
+    ax.plot(smooth_number_of_cards, power_smooth(smooth_number_of_cards), '-', c='g', linewidth=5, label='Maximum / Minimum')
 
-# Smoothing the curve for min rewards 
-power_smooth = interp1d(list(calculated_rewards.keys()), mins, kind='cubic')
-smooth_min = max(power_smooth(smooth_number_of_cards)) # the limit
-ax.plot(smooth_number_of_cards, power_smooth(smooth_number_of_cards), '-', c='g', linewidth=5, label='Maximum / Minimum')
-
-# Smoothing the curve for max rewards
-power_smooth = interp1d(list(calculated_rewards.keys()), maxes, kind='cubic')
-smooth_max = max(power_smooth(smooth_number_of_cards)) # the limit
-ax.plot(smooth_number_of_cards, power_smooth(smooth_number_of_cards), '-', c='g', linewidth=5)
+    # Smoothing the curve for max rewards
+    power_smooth = interp1d(list(calculated_rewards.keys()), maxes, kind='cubic')
+    smooth_max = max(power_smooth(smooth_number_of_cards)) # the limit
+    ax.plot(smooth_number_of_cards, power_smooth(smooth_number_of_cards), '-', c='g', linewidth=5)
 
 
-# Plotting lines for the limits of the max, median, and min
-ax.plot([0,10], [smooth_min, smooth_min], alpha=0.5, c='k', linewidth=3, label='Plateaus')
-ax.plot([0,10], [smooth_max, smooth_max], alpha=0.5, c='k', linewidth=3)
-ax.plot([0,10], [smooth_median, smooth_median], alpha=0.5, c='k', linewidth=3)
-ax.annotate(f'Max plateau at ~${int(round(smooth_max,-1))}', xy=(6, smooth_max),  xycoords='data',
-            xytext=(0.8, 0.5), textcoords='axes fraction',
-            arrowprops=dict(facecolor='black', shrink=0.05),
-            horizontalalignment='right', verticalalignment='top',
-            )
-ax.annotate(f'Min plateau at ~${int(round(smooth_min,-1))}', xy=(2, smooth_min),  xycoords='data',
-            xytext=(0.5, 0.3), textcoords='axes fraction',
-            arrowprops=dict(facecolor='black', shrink=0.05),
-            horizontalalignment='right', verticalalignment='top',
-            )
+    # Plotting lines for the limits of the max, median, and min
+    ax.plot([0,10], [smooth_min, smooth_min], alpha=0.5, c='k', linewidth=3, label='Plateaus')
+    ax.plot([0,10], [smooth_max, smooth_max], alpha=0.5, c='k', linewidth=3)
+    ax.plot([0,10], [smooth_median, smooth_median], alpha=0.5, c='k', linewidth=3)
+    ax.annotate(f'Max plateau at ~${int(round(smooth_max,-1))}', xy=(6, smooth_max),  xycoords='data',
+                xytext=(0.8, 0.5), textcoords='axes fraction',
+                arrowprops=dict(facecolor='black', shrink=0.05),
+                horizontalalignment='right', verticalalignment='top',
+                )
+    ax.annotate(f'Min plateau at ~${int(round(smooth_min,-1))}', xy=(2, smooth_min),  xycoords='data',
+                xytext=(0.5, 0.3), textcoords='axes fraction',
+                arrowprops=dict(facecolor='black', shrink=0.05),
+                horizontalalignment='right', verticalalignment='top',
+                )
 
-ax.annotate(f'Median plateau at ~${int(round(smooth_median,-1))}', xy=(4.5, smooth_median),  xycoords='data',
-            xytext=(0.7, 0.4), textcoords='axes fraction',
-            arrowprops=dict(facecolor='black', shrink=0.05),
-            horizontalalignment='right', verticalalignment='top',
-            )
+    ax.annotate(f'Median plateau at ~${int(round(smooth_median,-1))}', xy=(4.5, smooth_median),  xycoords='data',
+                xytext=(0.7, 0.4), textcoords='axes fraction',
+                arrowprops=dict(facecolor='black', shrink=0.05),
+                horizontalalignment='right', verticalalignment='top',
+                )
 
-ax.set_yscale('log', nonposy='clip')
-ax.legend()
-ax.set_xticks(range(11))
-ax.set_ylabel('Annual Rewards (\$)')
-ax.set_xlabel('Number of Credit Cards')
-ax.set_title('Calculated rewards for various numbers of credit cards for Nate\'s expenses')
+    ax.set_yscale('log', nonposy='clip')
+    ax.legend()
+    ax.set_xticks(range(11))
+    ax.set_ylabel('Annual Rewards (\$)')
+    ax.set_xlabel('Number of Credit Cards')
+    ax.set_title('Calculated rewards for various numbers of credit cards')
+
+
+def make_word_cloud():
+    number_of_cards = 2
+    results = word_cloud[number_of_cards]
+    scores = []
+    for (score, cards) in results:
+        # Cards are going to be `scored`
+        # Essentially, every dollar that was part of their a reward 
+        # they were a part of, counts towards their score and is summated
+        # across all samples
+        score = int(round(score, 0))
+        for card in cards:
+            scores += [card] * score
+
+    word_could_dict = Counter(scores) # Counting the number of points
+
+    # Making a plot
+    wordcloud = WordCloud(width = 1500, 
+                        height = 800, 
+                        background_color='white',
+                        min_font_size=1,
+                        max_font_size=150,
+                        colormap='copper',
+                        ).generate_from_frequencies(word_could_dict)
+    fig = plt.figure(figsize=(15,8))
+    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.axis("off")
+    fig.savefig('cloud.pdf', bbox_inches='tight',dpi=250)
