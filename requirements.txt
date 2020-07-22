@@ -11,3 +11,6 @@ alpha_vantage
 requests==2.20.0
 gunicorn==19.9.0
 flask-bootstrap
+plotly
+plotly-orca
+psutil
