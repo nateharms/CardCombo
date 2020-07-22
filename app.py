@@ -49,8 +49,25 @@ def plots():
 @app.route('/database')
 def database():
     cards = []
-    for card in sorted(os.listdir('templates/images')):
-        cards.append(card.strip('.svg'))
+    db_copy = db.copy()
+    db_copy['sum_of'] = db[['flights', 'hotel', 'grocery', 'gas', 'dining', 'other']].sum(axis=1)
+    #db_copy = db_copy.sort_values('sum_of', ascending=False)
+    for name in db_copy.index:
+        if name in ['Unknown', '']:
+            continue
+        series = db.loc[name]
+        req_credit = series['req_credit']
+        if req_credit is None:
+            req_credit = 'Unknown'
+        cards.append([
+            name, 
+            series['converted_name'], 
+            req_credit, 
+            series['annual_fee'], 
+            series['annual_bonus'],
+            series['rotating'], 
+            series['review_link'],
+            series['application_link']])
 
     return render_template('database.html',  cards = cards )
 

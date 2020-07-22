@@ -13,10 +13,17 @@
         <h2>CardCombo - What's best for you?</h2>
         <p><a href="/">Home</a> | <a href="/database">Credit Card Database</a> | <a href="https://github.com/nateharms/CardCombo">Github</a></p>
           <table class='table table-dark'>
-            {% for elem in cards %}
+            {% for name, converted_name, req_credit, fee, bonus, rotating, review, app in cards %}
               <tr>
-                <th> {{elem}} </th>
-                <th> <img src="images/{{elem}}.svg" width='250' height='250'/></th>
+                <th> {{name}} </th>
+                <th> 
+                  Required Credit: {{req_credit}} <br>
+                  Annual Fee: ${{fee}} <br>
+                  Annual Bonus Value: ${{bonus}} <br>
+                  Rotating Reward Categories?: {{rotating}}<br>
+                  <a href={{review}}>Cardratings Review</a> <br>
+                </th>
+                <th> <img src="images/{{converted_name}}.svg" width='500' height='500'/></th>
               </tr> 
             {% endfor %}
           </tabel>
