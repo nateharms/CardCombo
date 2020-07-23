@@ -3,9 +3,9 @@ import numpy as np
 import pandas as pd
 from multiprocessing import Pool
 
+COLUMNS = ['flights', 'hotel', 'grocery', 'gas', 'dining', 'other']
 
-
-def calculate_rewards(rewards_df, expenses):
+def calculate_rewards(db, expenses):
     """
     A function to calculate the max rewards for a parsed dataframe.
     TODO: this needs to eventually include net_fee in it's equation.
@@ -22,42 +22,43 @@ def calculate_rewards(rewards_df, expenses):
     cash_rewards = 0
     for category, expense in expenses.items():
         try:
-            if isinstance(rewards_df[category], float):
-                rate = rewards_df[category] / 100
+            if isinstance(db[category], float):
+                rate = db[category] / 100
             else:
-                rate = max(rewards_df[category]) / 100
+                rate = max(db[category]) / 100
             cash_rewards += rate * expense
         except:
             continue
         
     return cash_rewards
 
-def simulate(rewards_df, expenses, num_of_cards):
+def simulate(db, expenses, num_of_cards):
 
-    to_plot = rewards_df[rewards_df.columns[:-3]]
+    db_copy = db.copy()
+    db_copy['sum_of'] = db[COLUMNS].sum(axis=1)
 
     # Only looking at credit card with greater than 1% back at everything
-    to_plot = to_plot[to_plot.sum(axis=1) > len(to_plot.columns)]
+    db_copy = db_copy[db_copy.sum_of > len(COLUMNS)]
 
     # Removing cards that have a weirdly high point value
     # These data are either parsed incorrectly or are hotel rewards were
     # the point to cent ratio is high (e.g. many points to a cent)
-    to_plot = to_plot[to_plot.sum(axis=1) <= 2*len(to_plot.columns)] 
+    db_copy = db_copy[db_copy.sum_of <= 2*len(COLUMNS)] 
 
     card_rewards = []
     cloud_list = []
 
-    for i in range(1000):
-        choice = np.random.choice(to_plot.index, num_of_cards)
-        card_rewards.append(calculate_rewards(to_plot.loc[choice], expenses))
-        cloud_list.append((calculate_rewards(to_plot.loc[choice], expenses), choice))
+    for i in range(100):
+        choice = sorted(np.random.choice(db_copy.index, num_of_cards))
+        card_rewards.append(calculate_rewards(db_copy.loc[choice], expenses))
+        cloud_list.append((calculate_rewards(db_copy.loc[choice], expenses), choice))
     return card_rewards, cloud_list
 
-def simulate_all(rewards_df, expenses, range_of_cards=10):
+def simulate_all(db, expenses, range_of_cards=9):
     calculated_rewards = {}
     word_cloud = {}
     for num_of_cards in range(range_of_cards+1):
-        card_rewards, cloud_list = simulate(rewards_df, expenses, num_of_cards)
+        card_rewards, cloud_list = simulate(db, expenses, num_of_cards)
         calculated_rewards[num_of_cards] = card_rewards
         word_cloud[num_of_cards] = cloud_list
     return calculated_rewards, word_cloud
