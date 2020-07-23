@@ -7,23 +7,26 @@ from bokeh.embed import components
 import pandas as pd
 import time, os
 import pickle
+from cardcombo.simulate import *
+from cardcombo.plot import plot_num_of_cards, radar_plot
 
 
 
-cards =  pickle.load(open('rewards.pkl', 'rb'))
+db =  pickle.load(open('database.pkl', 'rb'))
 
 app = Flask(__name__, static_folder='templates/images')
 Bootstrap(app)
 
 app.vars = {}
 
+YM_CONVERSION = {'monthly': 12, 'annual':1}
+
 @app.route('/', methods=['GET', 'POST'])
 def home():
     if (request.method == 'GET' and len(request.args) != 0):
         return(plots())
-    print(list(cards.index)[:5])
 
-    return render_template('base.html', cards=list(cards.index))
+    return render_template('home.html', cards=list(db.index))
 
 
 @app.route('/loading', methods=['GET', 'POST'])
@@ -33,18 +36,54 @@ def loading():
 
 @app.route('/results', methods=['GET', 'POST'])
 def plots():
-    print([i for i in request.args.items()])
-    if (request.method == 'GET' and len(request.args) != 0):
-        print(app.vars)
-    print('Loading...')
-    try:
-        flights = request.args['flights']
-        #flight_freq = 
-    
-    except:
-        return redirect('/')
+    #try:
+    expenses = {}
+    print('Reading inputs...')
+    print('Flights...')
+    expenses['flights'] = float(request.args['flights']) * \
+        YM_CONVERSION[request.args['flights-freq']]
+    print('Hotel...')
+    expenses['hotel'] = float(request.args['hotel']) * \
+        YM_CONVERSION[request.args['hotel-freq']]
+    print('Grocery...')
+    expenses['grocery'] = float(request.args['grocery']) * \
+        YM_CONVERSION[request.args['grocery-freq']]
+    print('Gas...')
+    expenses['gas'] = float(request.args['gas']) * \
+        YM_CONVERSION[request.args['gas-freq']]
+    print('Dining...')
+    expenses['dining'] = float(request.args['dining']) * \
+        YM_CONVERSION[request.args['dining-freq']]
+    print('Other...')
+    expenses['other'] = float(request.args['other']) * \
+        YM_CONVERSION[request.args['other-freq']]
+    print('Existing cards...')
+    cards_to_consider = [
+        request.args['card_1'], 
+        request.args['card_2'], 
+        request.args['card_3']
+    ]
+    print(expenses, cards_to_consider)
         
-    return render_template('plots.html')
+    _, simulation_results = simulate_all(db, expenses)
+    print(simulation_results)
+
+    results = []
+    for num_cards, r in simulation_results.items():
+        print(num_cards, r)
+        if num_cards == 0:
+            continue
+        results.append((num_cards, sorted(r, key=lambda x: x[0], reverse=True)[:5]))
+    fig = plot_num_of_cards(_)
+    figs = []
+    for cash_rewards, cards in pd.DataFrame(simulation_results).max():
+        if not cards:
+            continue
+        to_plot = [db.loc[card] for card in cards]
+        fig_ = radar_plot(to_plot)
+        figs.append(fig_.to_html())
+
+    return render_template('plots.html', results=results, plot=fig.to_html(), figs=figs )
 
 @app.route('/database')
 def database():
@@ -72,4 +111,4 @@ def database():
     return render_template('database.html',  cards = cards )
 
 
-if __name__ == '__main__':app.run(port=8000)
+if __name__ == '__main__':app.run(port=8000, debug=True)
