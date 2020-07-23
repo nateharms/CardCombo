@@ -1,4 +1,6 @@
 .DS_Store*
 section*
-
+__pychche__
 scripts/.ipynb_checkpoints/
+
+cardcombo/__pycache__/
