@@ -9,17 +9,16 @@ import time, os
 import pickle
 from cardcombo.simulate import *
 from cardcombo.plot import plot_num_of_cards, radar_plot
+import pickle 
 
+db = pickle.load(open('db.pkl', 'rb'))
+#db = pd.read_csv('db.csv') # As an option for debugging 
 
-
-db =  pickle.load(open('database.pkl', 'rb'))
-
-app = Flask(__name__, static_folder='templates/images')
+app = Flask(__name__, static_folder='templates/')
 Bootstrap(app)
 
-app.vars = {}
-
 YM_CONVERSION = {'monthly': 12, 'annual':1}
+
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
