@@ -38,7 +38,7 @@ def calculate_rewards(db, expenses):
 def simulate(db, expenses, num_of_cards, cards_to_consider=[]):
 
     card_rewards = []
-    for i in range(250):
+    for i in range(25):
         # Selecting new cards 
         choice = sorted(np.random.choice(db.index[db.index.map(lambda x: x not in cards_to_consider)], num_of_cards, replace=False))
         # Calculating the rewards
