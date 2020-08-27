@@ -32,36 +32,28 @@ def calculate_rewards(db, expenses):
         
     return cash_rewards
 
-def simulate(db, expenses, num_of_cards):
-
-    db_copy = db.copy()
-    db_copy['sum_of'] = db[COLUMNS].sum(axis=1)
-
-    # Only looking at credit card with greater than 1% back at everything
-    db_copy = db_copy[db_copy.sum_of > len(COLUMNS)]
-
-    # Removing cards that have a weirdly high point value
-    # These data are either parsed incorrectly or are hotel rewards were
-    # the point to cent ratio is high (e.g. many points to a cent)
-    db_copy = db_copy[db_copy.sum_of <= 2*len(COLUMNS)] 
+def simulate(db, expenses, num_of_cards, cards_to_consider=[]):
 
     card_rewards = []
-    cloud_list = []
+    for i in range(250):
+        # Selecting new cards 
+        choice = sorted(np.random.choice(db.index[db.index.map(lambda x: x not in cards_to_consider)], num_of_cards, replace=False))
+        # Calculating the rewards
+        card_rewards.append((calculate_rewards(db.loc[choice + cards_to_consider], expenses), choice + cards_to_consider))
 
-    for i in range(100):
-        choice = sorted(np.random.choice(db_copy.index, num_of_cards))
-        card_rewards.append(calculate_rewards(db_copy.loc[choice], expenses))
-        cloud_list.append((calculate_rewards(db_copy.loc[choice], expenses), choice))
-    return card_rewards, cloud_list
+    return card_rewards
 
-def simulate_all(db, expenses, range_of_cards=9):
+def simulate_all(db, expenses, cards_to_consider=[], credit=800, range_of_cards=5):
+
+    # Getting cards below the user's credit score
+    db = db[(db.req_credit <= credit)] 
+
+    # Looping through the range of possible cards and calculating the rewards
     calculated_rewards = {}
-    word_cloud = {}
     for num_of_cards in range(range_of_cards+1):
-        card_rewards, cloud_list = simulate(db, expenses, num_of_cards)
+        card_rewards = simulate(db, expenses, num_of_cards, cards_to_consider)
         calculated_rewards[num_of_cards] = card_rewards
-        word_cloud[num_of_cards] = cloud_list
-    return calculated_rewards, word_cloud
+    return calculated_rewards
 
 
 if __name__ == '__main__':
