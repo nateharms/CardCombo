@@ -24,8 +24,8 @@ YM_CONVERSION = {'monthly': 12, 'annual':1}
 def home():
     if (request.method == 'GET' and len(request.args) != 0):
         return(plots())
+    return render_template('home.html', cards=list(sorted(db.index)))
 
-    return render_template('home.html', cards=list(db.index))
 
 
 @app.route('/loading', methods=['GET', 'POST'])
