@@ -1,5 +1,7 @@
 {% extends "bootstrap/base.html" %}
 {% block content %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
   <head>
     <meta charset="utf-8">
     <!-- <link rel="icon" href="favicon.ico"> -->
@@ -11,9 +13,46 @@
     <div class="row">
       <div class="col-lg-12 text-left">
         <h2>CardCombo - What's best for you?</h2>
-        <p><a href="/">Home</a> | <a href="/database">Credit Card Database</a> | <a href="https://github.com/nateharms/CardCombo">Github</a></p>
-        {{plot|safe}}
+        <p><a href="/">Home</a> | <a href="/database">Credit Card Database</a> | <a href="https://github.com/nateharms/CardCombo" target="_blank">Github</a></p>
 
+        <h4>CONGRATULATIONS!</h4>
+        You've successfully used CardCombo! 
+        Below we have a few plots for your results but before we get into your results, let me talk about what these results are and how we got them.<br><br>
+
+        
+        CardCombo uses a stochastic approach when trying to find the best possible combination for you. 
+        What this means is that card combo will randomly evaluate many possible combinations of cards to try and find your best combo. 
+        CardCombo does this by pretending that you have between 0 and 9 credit cards in your wallet. 
+        For each number of cards, CardCombo will create 1000 random unique combinations of credit cards from our database and then calculate your estimated net rewards. 
+        This creates a distribution of rewards for a variety of card combinations to try and help us find the best possible combination for you!
+        Your net rewards are defined below. <br><br>
+
+        <h6>Net Rewards = Earned Rewards + Annual Bonuses - Annual Fees </h6><br>
+
+        In the above equations, your Earned Rewards are the rewards that you get from spending. 
+        Your Earned Rewards are determined by using the maximum point value card in a combo for a particular category and then the number of points earned is calculated. 
+        The Annual Bonuses is the sum of cash value for all perks across all cards — for example, if you have two cards and one has a $50 dining credit and the other had a $100 travel credit, your Annual Bonuses would be $150. 
+        Finally, the Annual Fees is the sum of all fees across all cards because some premium cards come with fees. <br><br>
+        <hr>
+
+        <h4>The Plots</h4>
+        
+        Below are a handful of plots displaying your results using <a href='https://plotly.com/'>Plotly</a>!
+        The first plot you see is your Custom Credit Card Profile. 
+        This shows you every single simulation that we’ve performed as we’ve described above. 
+        You can see the card combinations that correspond to the maximum, minimum, and median rewards. 
+        Also feel free to explore other combinations if you’re interested! 
+        Some of the combinations of cards will actually result in negative rewards — this means that annual fee was so great that your earned rewards or annual bonuses couldn’t offset the card.<br><br>
+        
+        The next set of plots are Credit Rewards Profiles for your best combinations for each number of cards with links to the <a href='https://www.nerdwallet.com/'>NerdWallet</a> reviews.
+        Essentially this is a more detailed description of your Maximum Rewards curve from the first plot. 
+        This allows you to see which cards to use for each type of purchase and read more up on them if you're interested.
+        A quick note, dashed lines correspond to card with rotating rewards categories — this means that the peak rewards category shifts every three months. 
+        Don’t worry though, we’ve taken care of this in our simulations!<br><br>
+        
+        Finally, you’ll have a text list of the top 5 combination of cards for each number of cards. 
+        This is just another way for you to see your results!<br><br>
+        
         {{card_fig|safe}}
         
         <table style="width: 100%">
