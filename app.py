@@ -29,7 +29,7 @@ def home():
 
 @app.route('/results', methods=['GET', 'POST'])
 def plots():
-    #try:
+    # To read in the users expenses
     expenses = {}
     print('Reading inputs...')
     print('Flights...')
@@ -50,33 +50,48 @@ def plots():
     print('Other...')
     expenses['other'] = float(request.args['other']) * \
         YM_CONVERSION[request.args['other-freq']]
+
+    # To read in their existing cards
     print('Existing cards...')
     cards_to_consider = [
         request.args['card_1'], 
         request.args['card_2'], 
         request.args['card_3']
     ]
-    print(expenses, cards_to_consider)
-        
-    _, simulation_results = simulate_all(db, expenses)
-    print(simulation_results)
+    cards_to_consider = [c for c in cards_to_consider if c != '']
 
+    # To read in their provided credit score
+    credit = request.args['credit_score']
+    try: 
+        credit = float(credit)
+    except:
+        credit = 850 # Assume that they have a good credit score
+        
+    # Simulating the test cases
+    simulation_results = simulate_all(db, expenses, cards_to_consider, credit, 9-len(cards_to_consider))
+
+    # Sorting results by the net rewards
     results = []
     for num_cards, r in simulation_results.items():
-        print(num_cards, r)
         if num_cards == 0:
             continue
-        results.append((num_cards, sorted(r, key=lambda x: x[0], reverse=True)[:5]))
-    fig = plot_num_of_cards(_)
-    figs = []
+        results.append((num_cards, sorted(r, key=lambda x: round(x[0],2), reverse=True)[:5]))
+
+    # Plotting the trend of all credit cards in Plotly
+    card_fig = plot_num_of_cards(simulation_results).to_html()
+
+    # For best cases, create overlaid card profile
+    radar_figs = []
     for cash_rewards, cards in pd.DataFrame(simulation_results).max():
         if not cards:
             continue
         to_plot = [db.loc[card] for card in cards]
-        fig_ = radar_plot(to_plot)
-        figs.append(fig_.to_html())
+        radar_fig, names = radar_plot(to_plot)
+        links = list(db.loc[names]['review_link'])
+        radar_figs.append((radar_fig.to_html(), zip(names, links)))
 
-    return render_template('plots.html', results=results, plot=fig.to_html(), figs=figs )
+    return render_template('plots.html', results=results, card_fig=card_fig, radar_figs=radar_figs )
+
 
 @app.route('/database')
 def database():
