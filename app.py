@@ -117,5 +117,4 @@ def database():
 
     return render_template('database.html',  cards = cards )
 
-
-if __name__ == '__main__':app.run(port=8000, debug=True)
+if __name__ == '__main__':app.run(port=8000, debug=False)
