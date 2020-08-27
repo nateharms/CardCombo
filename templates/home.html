@@ -77,8 +77,9 @@
               <option value= "{{elem}}" />  
             {% endfor %}
           </datalist><br>
-
-          <input type="submit">
+          <label for="credit_score">Your current credit score: (optional)</label>
+          <input type="number" id="credit_score" name="credit_score", placeholder="750" value=780><br>
+          <input type="submit" onclick="loading();">
         </form>
       </div>
     </div>
