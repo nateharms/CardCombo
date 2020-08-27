@@ -21,16 +21,19 @@ def calculate_rewards(db, expenses):
     """
     cash_rewards = 0
     for category, expense in expenses.items():
+        rate = 0
+        added = []
         try:
-            if isinstance(db[category], float):
-                rate = db[category] / 100
-            else:
-                rate = max(db[category]) / 100
+            for _ in range(4): # 4 quarters in a year
+                index = db[db.index.map(lambda x: x not in added)][category].idxmax()
+                rate += db.loc[index][category] /400
+                if db.loc[index].rotating == True:
+                    added.append(index)
             cash_rewards += rate * expense
         except:
             continue
         
-    return cash_rewards
+    return cash_rewards - db.annual_fee.sum()
 
 def simulate(db, expenses, num_of_cards, cards_to_consider=[]):
 
