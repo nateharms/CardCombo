@@ -14,9 +14,30 @@
         <p><a href="/">Home</a> | <a href="/database">Credit Card Database</a> | <a href="https://github.com/nateharms/CardCombo">Github</a></p>
         {{plot|safe}}
 
-        {% for fig in figs %}
-          {{fig|safe}}
-        {% endfor %}
+        {{card_fig|safe}}
+        
+        <table style="width: 100%">
+          <colgroup>
+            <col span="1" style="width: 15%;">
+            <col span="1" style="width: 85%;">
+          </colgroup>
+          <tr>
+            <th style='text-align:center'>Nerdwallet Reviews</th>
+            <th style='text-align:center'>Card Profile</th>
+          </tr>
+
+          
+          {% for fig, names in radar_figs %}
+            <tr>
+              <th>
+                {% for name, link in names %}
+                  <li><a href={{link}} target="_blank">{{name}}</a></li>
+                {% endfor %}
+              </th>
+              <th>{{fig|safe}}</th>
+            </tr>
+          {% endfor %}
+        </table>
 
 
 
