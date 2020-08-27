@@ -14,3 +14,4 @@ gunicorn==19.9.0
 flask-bootstrap
 plotly
 psutil
+ipywidgets>=7.0.0
