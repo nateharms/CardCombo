@@ -12,8 +12,19 @@
       <div class="col-lg-12 text-left">
         <h2>CardCombo - What's best for you?</h2>
         <p><a href="/">Home</a> | <a href="/database">Credit Card Database</a> | <a href="https://github.com/nateharms/CardCombo">Github</a></p>
+
+          <h4>The Credit CardDatabase</h4>
+
+          Below we have our database of hundreds of credit cards!
+          This database was created by using <a href='https://www.crummy.com/software/BeautifulSoup/bs4/doc/'>BeautifulSoup</a> to webscrape information from card reviews
+          on <a href='https://www.nerdwallet.com/'>NerdWallet</a>. 
+          We were able to scrape the rewards rates for 6 common categories: Grocery, Gas, Dining, Hotel, Flights, and everything else.
+          In addition, we were able to determine the required credit needed to get the card, the annual fee, and the value of any annual bonuses.
+          Each entry in the table below correspond to a review by <a href='https://www.nerdwallet.com/'>NerdWallet</a>.
+          This allows you to compare two cards side by side and make informed choices about the cards you're considering.
+
           <table class='table table-dark'>
-            {% for name, converted_name, req_credit, fee, bonus, rotating, review, app in cards %}
+            {% for name, converted_name, req_credit, fee, bonus, rotating, review, app, img_url in cards %}
               <tr>
                 <th> {{name}} </th>
                 <th> 
@@ -21,7 +32,8 @@
                   Annual Fee: ${{fee}} <br>
                   Annual Bonus Value: ${{bonus}} <br>
                   Rotating Reward Categories?: {{rotating}}<br>
-                  <a href={{review}}>Cardratings Review</a> <br>
+                  <a href={{review}}>Nerdwallet Review</a> <br>
+                  <img src="{{img_url}}"/>
                 </th>
                 <th> <img src="images/{{converted_name}}.svg" width='500' height='500'/></th>
               </tr> 
