@@ -16,34 +16,34 @@
         <form action="/results" method="GET">
           <table class='table table-dark'>
             <tr>
-              <th scope='col' padding='15px'>Cateogry</th>
+              <th scope='col' padding='15px'>Category</th>
               <th scope='col' padding='15px'>Estimated Expenses</th>
               <th scope='col' padding='15px'>Annual?</th>
               <th scope='col' padding='15px'>Monthly?</th>
             </tr>
             <tr>
               <th scope="row"><label>Flights:</label></th>
-              <th><input type="number" id="flights" name="flights", placeholder="$1000"></th>
+              <th><input type="number" step=0.01 id="flights" name="flights", placeholder="$1000" value=800></th>
               <th><input type="radio" id="annual" name="flights-freq" value="annual" checked></input></th>
               <th><input type="radio" id="monthly" name="flights-freq" value="monthly"></input></th>
             </tr>
             <tr>
               <th scope="row"><label>Hotel:</label></th>
-              <th><input type="number" id="hotel" name="hotel", placeholder="$1000"></th>
+              <th><input type="number" step=0.01 id="hotel" name="hotel", placeholder="$1000" value=800></th>
               <th><input type="radio" id="annual" name="hotel-freq" value="annual" checked></input></th>
               <th><input type="radio" id="monthly" name="hotel-freq" value="monthly"></input></th>
             </tr>
             <tr>
               <th scope="row"><label>Grocery:</label></th>
-              <th><input type="number" id="grocery" name="grocery", placeholder="$1000"></th>
-              <th><input type="radio" id="annual" name="grocery-freq" value="annual" checked></input></th>
-              <th><input type="radio" id="monthly" name="grocery-freq" value="monthly"></input></th>
+              <th><input type="number" step=0.01 id="grocery" name="grocery", placeholder="$1000", value=250></th>
+              <th><input type="radio" id="annual" name="grocery-freq" value="annual" ></input></th>
+              <th><input type="radio" id="monthly" name="grocery-freq" value="monthly" checked></input></th>
             </tr>
             <tr>
               <th scope="row"><label>Gas:</label></th>
-              <th><input type="number" id="gas" name="gas", placeholder="$1000"></th>
-              <th><input type="radio" id="annual" name="gas-freq" value="annual" checked></input></th>
-              <th><input type="radio" id="monthly" name="gas-freq" value="monthly"></input></th>
+              <th><input type="number" step=0.01 id="gas" name="gas", placeholder="$1000" value=100></th>
+              <th><input type="radio" id="annual" name="gas-freq" value="annual"></input></th>
+              <th><input type="radio" id="monthly" name="gas-freq" value="monthly" checked></input></th>
             </tr>
             <!-- 
             <tr>
@@ -55,15 +55,15 @@
             -->
             <tr>
               <th scope="row"><label>Restaurants & Dining:</label></th>
-              <th><input type="number" id="dining" name="dining", placeholder="$1000"></th>
-              <th><input type="radio" id="annual" name="dining-freq" value="annual" checked></input></th>
-              <th><input type="radio" id="monthly" name="dining-freq" value="monthly"></input></th>
+              <th><input type="number" step=0.01 id="dining" name="dining", placeholder="$1000" value=250></th>
+              <th><input type="radio" id="annual" name="dining-freq" value="annual" ></input></th>
+              <th><input type="radio" id="monthly" name="dining-freq" value="monthly" checked></input></th>
             </tr>
             <tr>
               <th scope="row"><label>Other:</label></th>
-              <th><input type="number" id="other" name="other", placeholder="$1000"></th>
-              <th><input type="radio" id="annual" name="other-freq" value="annual" checked></input></th>
-              <th><input type="radio" id="monthly" name="other-freq" value="monthly"></input></th>
+              <th><input type="number" step=0.01 id="other" name="other", placeholder="$1000" value=150></th>
+              <th><input type="radio" id="annual" name="other-freq" value="annual" ></input></th>
+              <th><input type="radio" id="monthly" name="other-freq" value="monthly" checked></input></th>
             </tr>
 
             
