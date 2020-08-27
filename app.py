@@ -27,12 +27,6 @@ def home():
     return render_template('home.html', cards=list(sorted(db.index)))
 
 
-
-@app.route('/loading', methods=['GET', 'POST'])
-def loading():
-
-    return redirect('/results')
-
 @app.route('/results', methods=['GET', 'POST'])
 def plots():
     #try:
