@@ -60,17 +60,13 @@ def simulate_all(db, expenses, cards_to_consider=[], credit=800, range_of_cards=
 
 
 if __name__ == '__main__':
-    example_expenses = {'flights': 895.4899999999999,
-        'hotel': 9.9,
-        'grocery': 1803.92,
-        'gas': 336.03999999999996,
-        'utilities': 0.0,
-        'restaurants': 4069.8500000000004,
-        'other': 44067.240000000005}
-    rewards_df= pickle.load(open('rewards.pkl', 'rb'))
-    calculated_rewards, word_cloud = simulate_all(rewards_df, example_expenses)
-
-    f = open('calculated_rewards.pkl', 'wb')
-    pickle.dump(calculated_rewards, f)
-    f = open('cloud.pkl', 'wb')
-    pickle.dump(word_cloud, f)   
+    example_expenses = {
+        'flights': 800,
+        'hotel': 800,
+        'grocery': 250*12,
+        'gas': 100*12,
+        'restaurants': 250*12,
+        'other': 150*12}
+    rewards_df = pickle.load(open('../db.pkl', 'rb'))
+    calculated_rewards = simulate_all(rewards_df, example_expenses)
+    
