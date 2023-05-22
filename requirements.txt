@@ -9,7 +9,7 @@ matplotlib
 mpld3
 simplejson
 alpha_vantage
-requests==2.20.0
+requests==2.31.0
 gunicorn==19.9.0
 flask-bootstrap
 plotly
